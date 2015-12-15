@@ -66,13 +66,16 @@ router.param ('comment', function (req, res, next, id) {
   });
 });
 
-router.get('/posts/:post', function (req, req, next) {
+router.get('/posts/:post', function (req, res, next) {
+//  console.log('post = '+req.post+'\n');
+//  console.log('or ='+req.post._id);
   req.post.populate('comments', function (err, post) {
     if (err) {
+      console.log('err');
       return next (err);
     }
 
-    res.json (post);
+    res.json(req.post);
   });
 });
 
