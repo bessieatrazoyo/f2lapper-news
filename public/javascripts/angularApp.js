@@ -138,7 +138,7 @@ function($scope, auth){
   $scope.logOut = auth.logOut;
 }])
 
-.factory  ('posts', ['$http', function ($http) {
+.factory  ('posts', ['$http', 'auth', function ($http, auth) {
   var o = {
     posts: []
   };
@@ -155,19 +155,34 @@ function($scope, auth){
   };
 
   o.create = function (post) {
-    return $http.post ('/posts', post).success (function (data) {
+    console.log('o.create');
+    return $http.post ('/posts', post, {
+                        headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success (function (data) {
       o.posts.push (data);
     });
   };
 
   o.upvote = function (post) {
-    return $http.put ('/posts/' + post._id+ '/upvote').success (function (data) {
+    return $http.put ('/posts/' + post._id+ '/upvote', null, {
+                        headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success (function (data) {
       post.upvotes += 1;
     });
   };
 
   o.addComment = function (id, comment) {
-    return $http.post ('/posts/' + id + '/comments', comment);
+    return $http.post ('/posts/' + id + '/comments', comment, {
+                        headers: {Authorization: 'Bearer '+auth.getToken()}
+    });
+  };
+
+  o.upvoteComment = function (post, comment) {
+    return $http.put ('/posts/' + post._id + '/comments', comment._id + '/upvote', null, {
+                      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success (function (data) {
+        comment.upvotes += 1;
+    });
   };
 
   return o;
@@ -176,8 +191,10 @@ function($scope, auth){
 .controller ('MainCtrl', [
   '$scope',
   'posts',
-  function ($scope, posts){
+  'auth',
+  function ($scope, posts, auth){
     $scope.posts = posts.posts; 
+    $scope.isLoggedIn = auth.isLoggedIn;
 
     $scope.addPost = function () {
       if (!$scope.title || $scope.title === '') {
@@ -204,8 +221,10 @@ function($scope, auth){
   '$scope',
   'posts',
   'post',
-  function($scope, posts, post) {
+  'auth',
+  function ($scope, posts, post, auth) {
     $scope.post = post;
+    $scope.isLoggedIn = auth.isLoggedIn;
 
     $scope.addComment = function () {
       if ($scope.body === '') {
