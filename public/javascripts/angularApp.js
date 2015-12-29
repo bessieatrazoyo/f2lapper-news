@@ -21,7 +21,18 @@ var app = angular.module ('flapperNews', ['ui.router'])
         controller: 'PostsCtrl',
         resolve: {
           post: ['$stateParams', 'posts', function ($stateParams, posts) {
-            return posts.get  ($stateParams.id);
+            return posts.get ($stateParams.id);
+          }]
+        }
+      })
+
+      .state ('users', {
+        url: '/users',
+        templateUrl: '/users.html',
+        controller: 'UsersCtrl',
+        resolve: {
+          postPromise: ['users', function (users) {
+            return users.getAll ();
           }]
         }
       })
@@ -138,6 +149,25 @@ function($scope, auth){
   $scope.logOut = auth.logOut;
 }])
 
+.factory  ('users', ['$http', 'auth', function ($http, auth) {
+  var o = {
+    users: []
+  };
+  o.getAll = function () {
+    return $http.get ('/users').success (function (data) {
+      angular.copy (data, o.users);
+    });
+  };
+
+  o.get = function (id) {
+    return $http.get ('/users/' + id).then (function (res) {
+      return res.data;
+    });
+  };
+
+  return o;
+}])
+
 .factory  ('posts', ['$http', 'auth', function ($http, auth) {
   var o = {
     posts: []
@@ -167,7 +197,7 @@ function($scope, auth){
     return $http.put ('/posts/' + post._id+ '/upvote', null, {
                         headers: {Authorization: 'Bearer '+auth.getToken()}
     }).success (function (data) {
-      post.upvotes += 1;
+      // post.upvotes += 1;
     });
   };
 
@@ -178,15 +208,38 @@ function($scope, auth){
   };
 
   o.upvoteComment = function (post, comment) {
-    return $http.put ('/posts/' + post._id + '/comments', comment._id + '/upvote', null, {
+    return $http.put ('/posts/' + post._id + '/comments/' + comment._id + '/upvote', null, {
                       headers: {Authorization: 'Bearer '+auth.getToken()}
     }).success (function (data) {
-        comment.upvotes += 1;
+      //    comment.upvotes += 1;
     });
   };
 
   return o;
 }])
+
+.controller ('UsersCtrl', [
+  '$scope',
+  'users',
+  'auth',
+  function ($scope, users, auth) {
+    $scope.users = users.users; 
+    $scope.isLoggedIn = auth.isLoggedIn;
+
+    /*
+    $scope.incrementUpvotes = function (post) {
+      posts.upvote (post);
+      };*/
+
+    $scope.deleteUser = function (user) {
+      user.remove (function (error) {
+        if (error) {
+          $scope.error = error;
+        }
+      });
+    }
+  }
+])
 
 .controller ('MainCtrl', [
   '$scope',
@@ -238,6 +291,10 @@ function($scope, auth){
       });
 
       $scope.body = '';
+    };
+
+    $scope.upvoteComment = function (post, comment) {
+      posts.upvoteComment (post, comment);
     };
   }
 ])

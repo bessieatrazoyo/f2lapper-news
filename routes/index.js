@@ -147,12 +147,12 @@ router.put ('/posts/:post/upvote', auth, function (req, res, next) {
 
 // upvote a comment
 router.put ('/posts/:post/comments/:comment/upvote', auth, function (req, res, next) {
-  req.comment.upvote (function (err, post) {
+  req.post.upvote (function (err, post) {
     if (err) {
       return next (err);
     }
 
-  res.json (comment);
+  res.json (post);
   });
 });
 

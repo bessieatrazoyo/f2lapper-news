@@ -33,7 +33,6 @@
       <span class="glyphicon glyphicon-thumbs-up"
         ng-click="incrementUpvotes(post)"></span>
       {{post.upvotes}}
-<!--added-->
       <span ng-show="post.author">
         posted by <a>{{post.author}}</a> |
       </span>
@@ -71,19 +70,24 @@
       <button type="submit" class="btn btn-primary">Post</button>
     </form>
 
+  </script>
+<!-- begin your add-->
+  <script type="text/ng-template" id="/users.html">
     <div class="page-header">
-      <h1>Users</h1>
+      <h3>
+        Users
+      </h3>
     </div>
 
-    <div ng-repeat="user in users">
-      <span class="glyphicon glyphicon-thumbs-up"
-        ng-click="incrementUpvotes(post)">icon delete</span>
+    <div ng-repeat="user in users | orderBy:'username'">
+      <span class="glyphicon glyphicon-trash"
+        ng-click="deleteUser(user)"></span>
       <span style="font-size:20px; margin-left:10px;">
-          {{user.username}}
+        {{user.username}}
       </span>
     </div>
-
   </script>
+<!-- end your add-->
   <script type="text/ng-template" id="/posts.html">
     <div class="page-header">
       <h3>
@@ -98,7 +102,7 @@
 
     <div ng-repeat="comment in post.comments | orderBy:'-upvotes'">
       <span class="glyphicon glyphicon-thumbs-up"
-        ng-click="incrementUpvotes(comment)"></span>
+        ng-click="upvoteComment(post, comment)"></span>
       {{comment.upvotes}} - by {{comment.author}}
       <span style="font-size:20px; margin-left:10px;">
         {{comment.body}}
