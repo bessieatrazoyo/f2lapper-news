@@ -197,7 +197,7 @@ function($scope, auth){
     return $http.put ('/posts/' + post._id+ '/upvote', null, {
                         headers: {Authorization: 'Bearer '+auth.getToken()}
     }).success (function (data) {
-      // post.upvotes += 1;
+       post.upvotes += 1;
     });
   };
 
@@ -211,7 +211,7 @@ function($scope, auth){
     return $http.put ('/posts/' + post._id + '/comments/' + comment._id + '/upvote', null, {
                       headers: {Authorization: 'Bearer '+auth.getToken()}
     }).success (function (data) {
-      //    comment.upvotes += 1;
+       comment.upvotes += 1;
     });
   };
 
