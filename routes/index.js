@@ -64,7 +64,7 @@ router.get ('/posts', function(req, res, next) {
   });
 });
 
-router.get ('/users', function(req, res, next) {
+router.get ('/users', function (req, res, next) {
   console.log ('router.get users');
   User.find (function (err, users) {
     if (err) {
@@ -108,16 +108,33 @@ router.param ('post', function (req, res, next, id) {
 router.param ('comment', function (req, res, next, id) {
   var query = Comment.findById(id);
 
-  query.exec (function (err, post) {
+  query.exec (function (err, comment) {
     if (err) {
       return next (err);
     }
 
-    if (!post) {
-      return next (new Error ("can't find post"));
+    if (!comment) {
+      return next (new Error ("can't find comment"));
     }
 
-    req.post = post;
+    req.comment = comment;
+    return next();
+  });
+});
+
+router.param ('user', function (req, res, next, id) {
+  var query = User.findById(id);
+
+  query.exec (function (err, user) {
+    if (err) {
+      return next (err);
+    }
+
+    if (!user) {
+      return next (new Error ("can't find user"));
+    }
+
+    req.user = user;
     return next();
   });
 });
@@ -147,7 +164,7 @@ router.put ('/posts/:post/upvote', auth, function (req, res, next) {
 
 // upvote a comment
 router.put ('/posts/:post/comments/:comment/upvote', auth, function (req, res, next) {
-  req.post.upvote (function (err, post) {
+  req.comment.upvote (function (err, post) {
     if (err) {
       return next (err);
     }
@@ -157,23 +174,36 @@ router.put ('/posts/:post/comments/:comment/upvote', auth, function (req, res, n
 });
 
 // create a new comment
-router.post('/posts/:post/comments', auth, function (req, res, next) {
-  var comment = new Comment (req.body);
+router.post('/posts/:post/comments', function(req, res, next) {
+  var comment = new Comment(req.body);
   comment.post = req.post;
-  comment.author = req.payload.username;
 
-  comment.save (function (err, comment) {
+  comment.save(function(err, comment){
+    if(err){ return next(err); }
+
+    req.post.comments.push(comment);
+    req.post.save(function(err, post) {
+      if(err){ return next(err); }
+
+      res.json(comment);
+    });
+  });
+});
+
+// delete a user
+router.post('/users/delete/:user', auth, function (req, res, next) {
+  User.findByIdAndRemove(req.user._id, function (err) {
     if (err) {
-      return next (err);
+      next(err);
     }
 
-    req.post.comments.push (comment);
-    req.post.save (function (err, post) {
+
+    User.find (function (err, users) {
       if (err) {
-        return next (err);
+        next (err);
       }
 
-      res.json (comment);
+      res.json(users);
     });
   });
 });

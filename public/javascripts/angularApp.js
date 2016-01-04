@@ -34,9 +34,20 @@ var app = angular.module ('flapperNews', ['ui.router'])
           postPromise: ['users', function (users) {
             return users.getAll ();
           }]
-        }
+       }
       })
 
+      .state ('user', {
+        url: '/users/{id}',
+        templateUrl: '/user.html',
+        controller: 'UsersCtrl',
+        resolve: {
+           user: ['$stateParams', 'users', function ($stateParams, users) {
+            return users.get ($stateParams.id);
+            }]
+        }
+      })
+          
       .state ('login', {
         url: '/login',
         templateUrl: '/login.html',
@@ -165,6 +176,15 @@ function($scope, auth){
     });
   };
 
+  o.delete = function (user) {
+    console.log('o.delete');
+    return $http.post ('/users/delete/' + user._id, o.users, {
+                        headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success (function (data) {
+      angular.copy (data, o.users);
+    });
+  };
+
   return o;
 }])
 
@@ -223,29 +243,18 @@ function($scope, auth){
   'users',
   'auth',
   function ($scope, users, auth) {
+    console.log('inside UsersCtrl');
     $scope.users = users.users; 
     $scope.isLoggedIn = auth.isLoggedIn;
-
-    /*
-    $scope.incrementUpvotes = function (post) {
-      posts.upvote (post);
-      };*/
-
-    $scope.deleteUser = function (user) {
-      user.remove (function (error) {
-        if (error) {
-          $scope.error = error;
-        }
-      });
-    }
   }
 ])
 
 .controller ('MainCtrl', [
   '$scope',
   'posts',
+  'users',
   'auth',
-  function ($scope, posts, auth){
+  function ($scope, posts, users, auth){
     $scope.posts = posts.posts; 
     $scope.isLoggedIn = auth.isLoggedIn;
 
@@ -260,13 +269,19 @@ function($scope, auth){
       $scope.title = '';
       $scope.link = '';
     };
+
     $scope.incrementUpvotes = function (post) {
       posts.upvote (post);
     };
 
     $scope.decrementUpvotes = function (post) {
       posts.upvote (post);
-    }
+    };
+    
+    $scope.deleteUser = function (user) {
+      console.log('deleteUser');
+      users.delete (user);
+    };
   }
 ])
 

@@ -6,6 +6,7 @@
   <script src="http://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.10/angular-ui-router.js"></script>
   <script src="/javascripts/angularApp.js"></script>
   <style> .glyphicon-thumbs-up { cursor:pointer } </style>
+  <style> .glyphicon-trash { cursor:pointer } </style>
 </head>
 <body ng-app="flapperNews" ng-controller="MainCtrl">
   <nav class="navbar navbar-default pull-right" ng-controller="NavCtrl">
@@ -73,18 +74,20 @@
   </script>
 <!-- begin your add-->
   <script type="text/ng-template" id="/users.html">
-    <div class="page-header">
-      <h3>
-        Users
-      </h3>
-    </div>
+    <div ng-controller="UsersCtrl">
+      <div class="page-header">
+        <h3>
+          Users
+        </h3>
+      </div>
 
-    <div ng-repeat="user in users | orderBy:'username'">
-      <span class="glyphicon glyphicon-trash"
-        ng-click="deleteUser(user)"></span>
-      <span style="font-size:20px; margin-left:10px;">
-        {{user.username}}
-      </span>
+      <div ng-repeat="user in users | orderBy:'username'">
+        <span class="glyphicon glyphicon-trash"
+          ng-click="deleteUser(user)"></span>
+        <span style="font-size:20px; margin-left:10px;">
+          {{user.username}}
+        </span>
+      </div>
     </div>
   </script>
 <!-- end your add-->
