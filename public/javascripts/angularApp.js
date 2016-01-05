@@ -280,6 +280,7 @@ function($scope, auth){
     
     $scope.deleteUser = function (user) {
       console.log('deleteUser');
+      alert('You are in deleteUser');
       users.delete (user);
     };
   }
